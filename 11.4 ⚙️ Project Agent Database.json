@@ -1,0 +1,303 @@
+{
+  "name": "11.4 ⚙️ Project Agent Database",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1344,
+        -336
+      ],
+      "id": "56145463-7cc4-4f2b-a42e-746094fad3d7",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -1312,
+        -128
+      ],
+      "id": "c4e7d89c-185c-41d3-8659-39d1e5c2e017",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "2ll7nWhcZokpqeYF",
+          "name": "OpenAi account AIS"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "22cd809b-f7fd-4590-ac74-b9cb6a746ccd",
+              "name": "response",
+              "value": "={{$json.output}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -768,
+        -544
+      ],
+      "id": "0c065061-c791-4d1c-a0f5-1c161de9bd4f",
+      "name": "Response to PA 2.0 (Success)"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "22cd809b-f7fd-4590-ac74-b9cb6a746ccd",
+              "name": "response",
+              "value": "Unable to perform task. Please try again.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -768,
+        -320
+      ],
+      "id": "425bcfb8-72e5-4ff3-b18d-4b0e5ac9931d",
+      "name": "Response to PA 2.0 (Try Again)"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1eT5MA2F5psVuPB7fMUDZHikYySov5vQVG6Y7kiPaz8k",
+          "mode": "list",
+          "cachedResultName": "3. Update Database Projects",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eT5MA2F5psVuPB7fMUDZHikYySov5vQVG6Y7kiPaz8k/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eT5MA2F5psVuPB7fMUDZHikYySov5vQVG6Y7kiPaz8k/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        -1088,
+        -96
+      ],
+      "id": "fed4fec1-92e9-4725-ae05-5b7652e3d65b",
+      "name": "Get Rows : Project Database",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "r5dJyl6N7Nvh7Os3",
+          "name": "Google Sheets AIS"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{$json.query}}",
+        "options": {
+          "systemMessage": "=You are a google sheets agent. Your job is to take the user query and decide which tool to use to get the job done. \n\nYour tools:\nAdd Contact\nUse this tool to add a contact to the contact database\n\nUpdate Contact\nUse this tool to update a row for a specific contact. The fields for a contact are Name, Email, and Phone Number. If not all of these are specified to update, then keep them as they are. Example, if we want to update Nate Herk's email, pass along the updated email, but keep the current Name and Phone Number the same. \n\nGet Projects\nUse this tool to get project information and summarize it.\n\nUpdate Projects\nUse this tool to update a row for a specific contact. The fields for a contact are Project, Notes, and Status. If not all of these are specified to update, then keep them as they are. "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -1136,
+        -336
+      ],
+      "id": "2b6f2dc9-eb91-4d04-8319-48c1e1b27cec",
+      "name": "Project Agent Database",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1eT5MA2F5psVuPB7fMUDZHikYySov5vQVG6Y7kiPaz8k",
+          "mode": "list",
+          "cachedResultName": "3. Update Database Projects",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eT5MA2F5psVuPB7fMUDZHikYySov5vQVG6Y7kiPaz8k/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eT5MA2F5psVuPB7fMUDZHikYySov5vQVG6Y7kiPaz8k/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Project": "={{ $fromAI(\"project\") }}",
+            "Notes ": "={{ $fromAI(\"notes\") }}",
+            "Status": "={{ $fromAI(\"status\") }}"
+          },
+          "matchingColumns": [
+            "Project"
+          ],
+          "schema": [
+            {
+              "id": "Project",
+              "displayName": "Project",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Notes ",
+              "displayName": "Notes ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        -896,
+        -96
+      ],
+      "id": "7e52fdfa-2001-4d12-9d3f-13a94083f192",
+      "name": "Update Projects",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "r5dJyl6N7Nvh7Os3",
+          "name": "Google Sheets AIS"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Project Agent Database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Project Agent Database",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Rows : Project Database": {
+      "ai_tool": [
+        [
+          {
+            "node": "Project Agent Database",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Project Agent Database": {
+      "main": [
+        [
+          {
+            "node": "Response to PA 2.0 (Success)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Response to PA 2.0 (Try Again)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Projects": {
+      "ai_tool": [
+        [
+          {
+            "node": "Project Agent Database",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4a957f8c-05d2-48f0-b7db-23d58b9f2abe",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "91f42292365f2736b62ea45ddfd531a5d9a185f2bc4a363bfb1ae1188ac76851"
+  },
+  "id": "QPDh9X8A35lhTbWt",
+  "tags": []
+}

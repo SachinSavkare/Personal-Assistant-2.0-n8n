@@ -1,0 +1,232 @@
+{
+  "name": "11.3 ⚙️Email Agent 2.0",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -2240,
+        -448
+      ],
+      "id": "cbee2163-2912-4cb3-8b60-8cc0fb356974",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7de74b34-2904-4c7b-a127-1346b3842b96",
+              "name": "response",
+              "value": "={{$json.output}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1616,
+        -624
+      ],
+      "id": "d46e79c5-8dbd-44cd-a1e0-20a5a3a1d6c6",
+      "name": "Response to PA 2.0 (Success)"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7de74b34-2904-4c7b-a127-1346b3842b96",
+              "name": "response",
+              "value": "Unable to perform task. Please try again.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1632,
+        -432
+      ],
+      "id": "a7306286-6cc4-43a5-8bec-abbfc8b8c403",
+      "name": "Response to PA 2.0 (Try Again)"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $fromAI(\"email\",\"the email of a contact\") }}",
+        "subject": "={{ $fromAI(\"subject\",\"the subject for the email\") }}",
+        "emailType": "text",
+        "message": "={{ $fromAI(\"emailbody\",\"the body message of the email\") }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        -1664,
+        -176
+      ],
+      "id": "56619122-1d7d-490f-8deb-45d07bf39114",
+      "name": "Send Email",
+      "webhookId": "1dae8550-d62a-4fd4-9df6-dd3569cfccf9",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "eCK4EFn7FCxilJEq",
+          "name": "Gmail AIS"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": "={{$fromAI(\"limit\",\"how many emails the user asked for\")}}",
+        "filters": {
+          "sender": "={{$fromAI(\"senderEmail\",\"who the user is asking for emails from\")}}"
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        -1824,
+        -192
+      ],
+      "id": "413b9831-628e-4831-b67e-cc4a577f4041",
+      "name": "Get Email : Limit : Sender",
+      "webhookId": "e7183fc8-54e4-4c7c-b641-e7d0a3686c30",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "eCK4EFn7FCxilJEq",
+          "name": "Gmail AIS"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{$json.query}}",
+        "options": {
+          "systemMessage": "=You are a helpful assistant. \n\nIf a number of emails isn't specified, just assume it will be 5.\n\nWhen sending an email, always sign it off from Sachin Savkare, never include something like [Your Name]"
+        }
+      },
+      "id": "8779eca9-e9cc-46ea-84fd-a23db61b11b6",
+      "name": "Email Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.6,
+      "position": [
+        -2048,
+        -448
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -2048,
+        -192
+      ],
+      "id": "6d09336f-8a24-4fcf-a9e0-327338862465",
+      "name": "gpt-4.1-mini",
+      "credentials": {
+        "openAiApi": {
+          "id": "2ll7nWhcZokpqeYF",
+          "name": "OpenAi account AIS"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Email Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email": {
+      "ai_tool": [
+        [
+          {
+            "node": "Email Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Email : Limit : Sender": {
+      "ai_tool": [
+        [
+          {
+            "node": "Email Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Agent": {
+      "main": [
+        [
+          {
+            "node": "Response to PA 2.0 (Success)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Response to PA 2.0 (Try Again)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "gpt-4.1-mini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Email Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d31a7919-19f9-4fca-a6d0-7806da22905f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "91f42292365f2736b62ea45ddfd531a5d9a185f2bc4a363bfb1ae1188ac76851"
+  },
+  "id": "NN1LHi57IcUBR4uT",
+  "tags": []
+}
